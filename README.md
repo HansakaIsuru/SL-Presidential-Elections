@@ -7,3 +7,6 @@ This is a Vite + React project showing Sri Lankan Presidential election results.
 1. Clone this repo
 2. Run `npm install`
 3. Run `npm run dev`
+
+## See a Sample webpage
+https://presidential-election-results.netlify.app
