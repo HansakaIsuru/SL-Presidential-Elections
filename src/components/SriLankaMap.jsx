@@ -39,6 +39,7 @@ const SriLankaMap = ({
       .style('opacity', 0)
       .style('pointer-events', 'none');
 
+    // Draw district paths
     svg
       .selectAll('path')
       .data(districts)
@@ -69,6 +70,13 @@ const SriLankaMap = ({
           .transition()
           .duration(150)
           .style('opacity', 0.95);
+
+        // Show label on hover
+        labels
+          .filter(labelD => labelD.properties.districts === d.properties.districts)
+          .transition()
+          .duration(150)
+          .style('opacity', 1);
       })
       .on('mouseout', function (event, d) {
         d3.select(this)
@@ -78,17 +86,46 @@ const SriLankaMap = ({
           .attr('stroke', '#222');
 
         tooltip.transition().duration(150).style('opacity', 0);
+
+        // Hide label if not selected
+        if (d.properties.districts !== selectedDistrict) {
+          labels
+            .filter(labelD => labelD.properties.districts === d.properties.districts)
+            .transition()
+            .duration(150)
+            .style('opacity', 0);
+        }
       })
       .on('click', (event, d) => {
         setSelectedDistrict(d.properties.districts);
       });
 
-  }, [topojsonData, selectedYear, selectedDistrict]);
+    // Draw labels
+    const labels = svg
+      .selectAll('text')
+      .data(districts)
+      .join('text')
+      .attr('x', d => path.centroid(d)[0])
+      .attr('y', d => path.centroid(d)[1])
+      .text(d => d.properties.districts)
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('font-size', 12)
+      .attr('fill', d => d.properties.districts === selectedDistrict ? '#1D4ED8' : '#333')
+      .style('font-weight', d => d.properties.districts === selectedDistrict ? '700' : '500')
+      .style('pointer-events', 'none')
+      .style('user-select', 'none')
+      .style('opacity', d => d.properties.districts === selectedDistrict ? 1 : 0);
+
+  }, [topojsonData, selectedYear, selectedDistrict, setSelectedDistrict, getResultsByYearAndDistrict]);
 
   return (
     <div className="relative">
       <svg ref={svgRef} className="w-full h-[600px]" />
-      <div ref={tooltipRef} className="absolute bg-white text-sm text-gray-700 px-3 py-1 border rounded shadow-md z-10 pointer-events-none" />
+      <div
+        ref={tooltipRef}
+        className="absolute bg-white text-sm text-gray-700 px-3 py-1 border rounded shadow-md z-10 pointer-events-none"
+      />
     </div>
   );
 };
